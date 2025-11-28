@@ -1,0 +1,37 @@
+{
+  "name": "FancyEditor",
+  "version": "1.0.0",
+  "description": "A simple fancy notepad",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "latest"
+  },
+  "build": {
+    "appId": "com.example.fancyeditor",
+    "productName": "FancyEditor",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "index.html"
+    ],
+    "win": {
+      "target": "portable",
+      "forceCodeSigning": false,
+      "signAndEditExecutable": false,
+      "icon": "icon.png"
+    },
+    "mac": {
+      "icon": "icon.icns"
+    },
+    "linux": {
+      "icon": "icon"
+    }
+  }
+}

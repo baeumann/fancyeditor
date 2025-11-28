@@ -1,0 +1,1714 @@
+<html>
+<head>
+  <title>Fancy Text Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-size: 42px;
+      --font-family: "Trebuchet MS", sans-serif;
+      --font-weight: bold;
+      --anim-start-color: rgb(88, 102, 116);
+      --anim-mid-color: rgb(255, 134, 5);
+      --anim-end-color: rgb(255, 255, 255);
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: #1a1d24;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 60px;
+      height: 100%;
+      background-color: #15181f;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding-top: 20px;
+      gap: 20px;
+      z-index: 10;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .menu-btn {
+      width: 40px;
+      height: 40px;
+      background: #1a1d24;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .menu-btn:hover {
+      border-color: #444;
+      background: #222;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #15181f;
+      min-width: 220px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      z-index: 11;
+      border: 1px solid #333;
+      border-radius: 6px;
+      left: 100%;
+      top: 0;
+      padding: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 5px 0;
+    }
+
+    .dropdown-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .dropdown-content label {
+      color: #ccc;
+      font-size: 12px;
+      font-weight: 500;
+      min-width: 60px;
+      letter-spacing: 0.5px;
+    }
+
+    .dropdown-content select,
+    .dropdown-content input {
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      padding: 6px 8px;
+      background: #1a1d24;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .dropdown-content select:focus,
+    .dropdown-content input:focus {
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+    }
+
+    .dropdown-content select:hover,
+    .dropdown-content input:hover {
+      border-color: #444;
+      background: #222;
+    }
+
+    .dropdown-content input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100px;
+      height: 6px;
+      background: #333;
+      outline: none;
+      border-radius: 3px;
+      margin: 0;
+      flex: 1;
+    }
+
+    .dropdown-content input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #4a90e2;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .dropdown-content input[type="range"]::-webkit-slider-thumb:hover {
+      background: #357abd;
+    }
+
+    .dropdown-content input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #4a90e2;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s ease;
+    }
+
+    .dropdown-content input[type="range"]::-moz-range-thumb:hover {
+      background: #357abd;
+    }
+
+    .dropdown-content input[type="range"]::-moz-range-track {
+      background: #333;
+      border-radius: 3px;
+    }
+
+    .dropdown-content button {
+      padding: 6px 8px;
+      background: #1a1d24;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: left;
+    }
+
+    .dropdown-content button:hover {
+      border-color: #444;
+      background: #222;
+    }
+
+    .dropdown-content input[type="color"] {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .gradient-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    #gradient-preview {
+      width: 100px;
+      height: 20px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    #gradient-preview:hover {
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    #thickness-preview {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 5px;
+      position: relative;
+      width: 16px;
+      height: 16px;
+    }
+
+    #thickness-preview .preview-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+    }
+
+    #gradient-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #15181f;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 30px;
+      z-index: 20;
+      display: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      min-width: 300px;
+    }
+
+    #gradient-popup h3 {
+      margin: 0 0 20px 0;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .popup-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .popup-row label {
+      color: #ccc;
+      font-size: 14px;
+      width: 60px;
+      font-weight: 500;
+    }
+
+    .popup-row input[type="color"] {
+      width: 40px;
+      height: 32px;
+      padding: 0;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #444;
+    }
+
+    #close-popup {
+      background: #4a90e2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      width: 100%;
+      transition: background 0.2s ease;
+    }
+
+    #close-popup:hover {
+      background: #357abd;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 15;
+      display: none;
+    }
+
+    .editor-container {
+      position: relative;
+      margin: 40px 40px 40px 100px;
+      width: calc(100% - 180px);
+      height: calc(100vh - 80px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #333 #1a1d24;
+    }
+
+    .editor-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .editor-container::-webkit-scrollbar-track {
+      background: #1a1d24;
+    }
+
+    .editor-container::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 4px;
+    }
+
+    .editor-container::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    .editor-container::-webkit-scrollbar-corner {
+      background: #1a1d24;
+    }
+
+    #content-layer {
+      position: relative;
+      width: 100%;
+      min-height: calc(100vh - 80px);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    textarea {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1;
+      height: auto;
+      min-height: calc(100vh - 80px);
+      padding: 0;
+      font-size: var(--font-size);
+      font-weight: var(--font-weight);
+      background-color: transparent;
+      border: none;
+      color: transparent;
+      outline: none;
+      resize: none;
+      caret-color: transparent;
+      font-family: var(--font-family);
+      line-height: normal;
+      box-sizing: border-box;
+      white-space: pre-wrap;
+      overflow-wrap: normal;
+      overflow: hidden;
+      pointer-events: auto;
+    }
+
+    #text-overlay {
+      position: relative;
+      width: 100%;
+      height: auto;
+      font-size: var(--font-size);
+      font-weight: var(--font-weight);
+      pointer-events: none;
+      font-family: var(--font-family);
+      line-height: normal;
+      white-space: pre-wrap;
+      overflow-wrap: normal;
+      z-index: 0;
+    }
+
+    #drawing-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      display: none;
+      cursor: crosshair;
+      touch-action: none;
+      pointer-events: auto;
+    }
+
+    .char {
+      display: inline-block;
+      pointer-events: none;
+    }
+
+    .placeholder {
+      color: #666666;
+      pointer-events: none;
+    }
+
+    .caret {
+      display: inline-block;
+      width: 0;
+      height: 1em;
+      position: relative;
+      vertical-align: middle;
+      pointer-events: none;
+    }
+
+    .caret::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2px;
+      height: 100%;
+      background: #666666;
+      animation: blink 1s infinite;
+    }
+
+    .media-wrapper {
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 4px;
+      position: relative;
+      width: 1em; /* UPDATED: Fixed to 1em (font-size) for text-size limit */
+      height: 1em; /* UPDATED: Fixed to 1em for square fitting text height */
+      overflow: visible;
+      transition: border-color 0.2s ease;
+      pointer-events: auto;
+      user-select: none;
+      z-index: 2;
+    }
+
+    .media-wrapper > img,
+    .media-wrapper > video,
+    .media-wrapper > audio {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      margin: 0;
+      max-width: none;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .media-wrapper video,
+    .media-wrapper audio {
+      vertical-align: middle;
+    }
+
+    .media-wrapper.hover > img,
+    .media-wrapper.hover > video:not([style*="position: fixed"]),
+    .media-wrapper.hover > audio:not([style*="position: fixed"]) {
+      border-color: #4a90e2;
+    }
+
+    /* Audio specific styles */
+    .media-wrapper[data-media-type="audio"]::before {
+      content: '🎵';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1em;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      color: white;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .media-wrapper[data-media-type="audio"].expanded::before {
+      display: none;
+    }
+
+    .media-wrapper[data-media-type="audio"] > audio {
+      opacity: 0;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .media-wrapper[data-media-type="audio"].expanded > audio {
+      opacity: 1;
+      width: auto;
+      height: auto;
+    }
+
+    /* Drag and drop styles */
+    .editor-container.drag-over {
+      background-color: rgba(74, 144, 226, 0.1);
+      border: 2px dashed #4a90e2;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    @keyframes textFade {
+      0%, 20% { color: var(--anim-start-color); transform: scale(1.01) rotate(1deg) translateY(3px); }
+      60% { color: var(--anim-mid-color); }
+      100% { color: var(--anim-end-color); transform: scale(1) rotate(0deg) translateY(0px); text-shadow: none; }
+    }
+
+    @keyframes imageFade {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .image-anim {
+      animation: imageFade 500ms forwards;
+    }
+
+    /* Add selection color styles */
+    ::selection {
+      background-color: rgba(42, 48, 64, 0.4);
+      color: inherit;
+    }
+
+    ::-moz-selection {
+      background-color: rgba(42, 48, 64, 0.4); /* For Firefox compatibility */
+      color: inherit;
+    }
+
+    textarea::selection {
+      background-color: rgba(42, 48, 64, 0.4);
+      color: transparent; /* Keep textarea text invisible */
+    }
+
+    textarea::-moz-selection {
+      background-color: rgba(42, 48, 64, 0.4);
+      color: transparent; /* Keep textarea text invisible */
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="dropdown">
+      <button class="menu-btn" title="File">📁</button>
+      <div class="dropdown-content">
+        <button id="save-btn">Save</button>
+        <button id="load-btn">Load</button>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="menu-btn" title="Text">Aa</button>
+      <div class="dropdown-content">
+        <div class="dropdown-row">
+          <label>Family:</label>
+          <select id="font-family">
+            <option value='Arial, sans-serif'>Arial</option>
+            <option value='Helvetica, sans-serif'>Helvetica</option>
+            <option value='Verdana, sans-serif'>Verdana</option>
+            <option value='"Trebuchet MS", sans-serif' selected>Trebuchet MS</option>
+            <option value='Tahoma, sans-serif'>Tahoma</option>
+            <option value='"Times New Roman", serif'>Times New Roman</option>
+            <option value='Georgia, serif'>Georgia</option>
+            <option value='Garamond, serif'>Garamond</option>
+            <option value='"Courier New", monospace'>Courier New</option>
+            <option value='"Lucida Sans", sans-serif'>Lucida Sans</option>
+            <option value='"Roboto", sans-serif'>Roboto</option>
+          </select>
+        </div>
+        <div class="dropdown-row">
+          <label>Weight:</label>
+          <select id="font-weight">
+            <option value="normal">Normal</option>
+            <option value="bold" selected>Bold</option>
+          </select>
+        </div>
+        <div class="dropdown-row">
+          <label>Size:</label>
+          <input type="range" id="font-size" min="10" max="100" value="42">
+        </div>
+        <div class="dropdown-row">
+          <label>Interval:</label>
+          <input type="range" id="anim-interval" min="20" max="2000" value="800">
+        </div>
+        <div class="dropdown-row">
+          <label>Gradient:</label>
+          <div class="gradient-control">
+            <div id="gradient-preview"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="menu-btn" title="Draw">🖌️</button>
+      <div class="dropdown-content">
+        <div class="dropdown-row">
+          <button id="draw-toggle">Draw</button>
+        </div>
+        <div class="dropdown-row">
+          <label>Color:</label>
+          <input type="color" id="pen-color" value="#ff0000" title="Pen Color">
+        </div>
+        <div class="dropdown-row">
+          <label>Thickness:</label>
+          <input type="range" id="line-thickness" min="1" max="10" value="2">
+          <div id="thickness-preview"><span class="preview-circle"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="load-file" accept=".json" style="display:none;">
+  <div class="overlay" id="overlay"></div>
+  <div id="gradient-popup">
+    <h3>Animation Gradient</h3>
+    <div class="popup-row">
+      <label>Start:</label>
+      <input type="color" id="anim-start" value="#586674">
+    </div>
+    <div class="popup-row">
+      <label>Mid:</label>
+      <input type="color" id="anim-mid" value="#ff8605">
+    </div>
+    <div class="popup-row">
+      <label>End:</label>
+      <input type="color" id="anim-end" value="#ffffff">
+    </div>
+    <button id="close-popup">Apply & Close</button>
+  </div>
+  <div class="editor-container">
+    <textarea spellcheck="false" placeholder="Start typing..."></textarea>
+    <div id="content-layer">
+      <div id="text-overlay"></div>
+      <canvas id="drawing-canvas"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const textarea = document.querySelector('textarea');
+    const overlay = document.getElementById('text-overlay');
+    const contentLayer = document.getElementById('content-layer');
+    const editorContainer = document.querySelector('.editor-container');
+    const root = document.documentElement;
+    const preview = document.getElementById('gradient-preview');
+    const popup = document.getElementById('gradient-popup');
+    const overlayBg = document.getElementById('overlay');
+    const drawToggle = document.getElementById('draw-toggle');
+    const penColor = document.getElementById('pen-color');
+    const lineThickness = document.getElementById('line-thickness');
+    const thicknessPreview = document.getElementById('thickness-preview');
+    const canvas = document.getElementById('drawing-canvas');
+    const ctx = canvas.getContext('2d');
+    const saveBtn = document.getElementById('save-btn');
+    const loadBtn = document.getElementById('load-btn');
+    const loadFile = document.getElementById('load-file');
+
+    const fontFamilySelect = document.getElementById('font-family');
+    const fontWeightSelect = document.getElementById('font-weight');
+    const fontSizeRange = document.getElementById('font-size');
+    const animIntervalRange = document.getElementById('anim-interval');
+
+    // Track characters as a list of { char, startTime, element }
+    let charList = [];
+    let prevValue = '';
+    let ANIMATION_INTERVAL = 800;
+    const initialPlaceholder = 'Start typing...';
+    const PLACEHOLDER_CHAR = '\uFFFC';
+
+    let currentLineWidth = 2;
+    let currentStrokeStyle = '#ff0000';
+
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = currentLineWidth;
+    ctx.strokeStyle = currentStrokeStyle;
+
+    // Initial pointer events for textarea
+    textarea.style.pointerEvents = 'auto';
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    function updatePreview() {
+      const start = getComputedStyle(root).getPropertyValue('--anim-start-color').trim();
+      const mid = getComputedStyle(root).getPropertyValue('--anim-mid-color').trim();
+      const end = getComputedStyle(root).getPropertyValue('--anim-end-color').trim();
+      preview.style.background = `linear-gradient(to right, ${start} 0%, ${mid} 40%, ${end} 100%)`;
+    }
+
+    // Initialize CSS variables
+    root.style.setProperty('--font-family', '"Trebuchet MS", sans-serif');
+    root.style.setProperty('--font-weight', 'bold');
+    root.style.setProperty('--font-size', '42px');
+    root.style.setProperty('--anim-start-color', 'rgb(88, 102, 116)');
+    root.style.setProperty('--anim-mid-color', 'rgb(255, 134, 5)');
+    root.style.setProperty('--anim-end-color', 'rgb(255, 255, 255)');
+
+    updatePreview();
+
+    function updateThicknessPreview() {
+      const circle = thicknessPreview.querySelector('.preview-circle');
+      circle.style.width = currentLineWidth + 'px';
+      circle.style.height = currentLineWidth + 'px';
+      circle.style.backgroundColor = currentStrokeStyle;
+    }
+
+    updateThicknessPreview();
+
+    function togglePlaceholder() {
+      const ph = overlay.querySelector('.placeholder');
+      if (textarea.value === '') {
+        if (!ph) {
+          const span = document.createElement('span');
+          span.className = 'placeholder';
+          span.textContent = initialPlaceholder;
+          overlay.appendChild(span);
+        }
+      } else {
+        if (ph) {
+          ph.remove();
+        }
+      }
+    }
+
+    function syncHeights() {
+      const contentHeight = overlay.scrollHeight;
+      if (contentHeight > 0) {
+        contentLayer.style.height = contentHeight + 'px';
+      }
+      const usedHeight = contentLayer.offsetHeight;
+      textarea.style.height = usedHeight + 'px';
+      canvas.style.height = usedHeight + 'px';
+    }
+
+    function updateCanvasSize() {
+      const containerRect = editorContainer.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const viewWidth = containerRect.width;
+      const fullHeight = parseFloat(canvas.style.height) || containerRect.height;
+      canvas.width = viewWidth * dpr;
+      canvas.height = fullHeight * dpr;
+      canvas.style.width = viewWidth + 'px';
+      canvas.style.height = fullHeight + 'px';
+      ctx.scale(dpr, dpr);
+      // Restore drawing properties after resize
+      ctx.lineWidth = currentLineWidth;
+      ctx.strokeStyle = currentStrokeStyle;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    }
+
+    fontFamilySelect.addEventListener('change', (e) => {
+      root.style.setProperty('--font-family', e.target.value);
+      setTimeout(() => {
+        syncHeights();
+      }, 0);
+    });
+
+    fontWeightSelect.addEventListener('change', (e) => {
+      root.style.setProperty('--font-weight', e.target.value);
+      setTimeout(() => {
+        syncHeights();
+      }, 0);
+    });
+
+    fontSizeRange.addEventListener('input', (e) => {
+      root.style.setProperty('--font-size', e.target.value + 'px');
+      setTimeout(() => {
+        syncHeights();
+      }, 0);
+    });
+
+    animIntervalRange.addEventListener('input', (e) => {
+      ANIMATION_INTERVAL = parseInt(e.target.value);
+    });
+
+    function createCaret() {
+      const span = document.createElement('span');
+      span.className = 'caret';
+      return span;
+    }
+
+    function createCharSpan(char, startTime) {
+      const span = document.createElement('span');
+      span.textContent = char;
+      span.className = 'char';
+
+      const now = Date.now();
+      const elapsed = now - startTime;
+      if (elapsed >= ANIMATION_INTERVAL) {
+        span.style.color = 'var(--anim-end-color)';
+      } else {
+        span.style.color = 'var(--anim-start-color)';
+        span.style.animation = `textFade ${ANIMATION_INTERVAL / 1000}s forwards`;
+        span.style.animationDelay = `-${elapsed}ms`;
+        span.addEventListener('animationend', function handler() {
+          this.style.color = 'var(--anim-end-color)';
+          this.style.animation = 'none';
+          this.style.transform = 'none';
+          this.removeEventListener('animationend', handler);
+        }, { once: true });
+      }
+
+      return span;
+    }
+
+    function removeCaret() {
+      const caret = overlay.querySelector('.caret');
+      if (caret) {
+        caret.remove();
+      }
+    }
+
+    function insertCaret(pos) {
+      if (pos < 0 || pos > charList.length) return;
+      const sibling = overlay.children[pos] || null;
+      const caret = createCaret();
+      if (sibling) {
+        overlay.insertBefore(caret, sibling);
+      } else {
+        overlay.appendChild(caret);
+      }
+    }
+
+    function updateCaretPosition() {
+      const pos = textarea.selectionEnd;
+      removeCaret();
+      insertCaret(pos);
+    }
+
+    function updateText() {
+      const now = Date.now();
+      const newValue = textarea.value;
+      if (newValue === prevValue) return;
+
+      removeCaret();
+
+      let i = 0;
+      const minLen = Math.min(prevValue.length, newValue.length);
+      while (i < minLen && prevValue[i] === newValue[i]) {
+        i++;
+      }
+
+      if (i === minLen) {
+        // Changes only at the end
+        if (newValue.length > prevValue.length) {
+          // Insertion at end
+          const insertedLen = newValue.length - prevValue.length;
+          for (let j = 0; j < insertedLen; j++) {
+            const newCharacter = newValue[i + j];
+            let item, node;
+            if (newCharacter === '\n') {
+              node = document.createElement('br');
+              item = { char: newCharacter, startTime: now, element: node };
+            } else if (newCharacter === PLACEHOLDER_CHAR) {
+              // For media, but since pasted, handled separately
+              node = document.createElement('span');
+              node.textContent = newCharacter;
+              item = { char: newCharacter, startTime: now, element: node };
+            } else {
+              node = createCharSpan(newCharacter, now);
+              item = { char: newCharacter, startTime: now, element: node };
+            }
+            overlay.appendChild(node);
+            charList.push(item);
+          }
+        } else {
+          // Deletion from end
+          const deletedLen = prevValue.length - newValue.length;
+          for (let k = 0; k < deletedLen; k++) {
+            const lastNode = overlay.lastChild;
+            if (lastNode && lastNode !== overlay.querySelector('.caret')) {
+              lastNode.remove();
+            }
+            if (charList.length > 0) {
+              charList.pop();
+            }
+          }
+        }
+      } else {
+        // Changes in middle
+        const pRestLen = prevValue.length - i;
+        const nRestLen = newValue.length - i;
+        let csLen = 0;
+        const minRest = Math.min(pRestLen, nRestLen);
+        while (csLen < minRest &&
+          prevValue[prevValue.length - 1 - csLen] === newValue[newValue.length - 1 - csLen]) {
+          csLen++;
+        }
+        const deletedLen = pRestLen - csLen;
+        const insertedLen = nRestLen - csLen;
+
+        // First, splice charList for deletes
+        charList.splice(i, deletedLen);
+
+        // Then, remove DOM nodes for deletes, from the end to avoid index shifting
+        for (let k = deletedLen - 1; k >= 0; k--) {
+          const nodeToRemove = overlay.children[i + k];
+          if (nodeToRemove && !nodeToRemove.classList?.contains('caret')) {
+            nodeToRemove.remove();
+          }
+        }
+
+        // Now, sibling for inserts
+        const sibling = overlay.children[i] || null;
+
+        // Then, inserts
+        for (let j = 0; j < insertedLen; j++) {
+          const pos = i + j;
+          const newCharacter = newValue[i + j];
+          let item, node;
+          if (newCharacter === '\n') {
+            node = document.createElement('br');
+            item = { char: newCharacter, startTime: now, element: node };
+          } else if (newCharacter === PLACEHOLDER_CHAR) {
+            // For media
+            node = document.createElement('span');
+            node.textContent = newCharacter;
+            item = { char: newCharacter, startTime: now, element: node };
+          } else {
+            node = createCharSpan(newCharacter, now);
+            item = { char: newCharacter, startTime: now, element: node };
+          }
+          if (sibling) {
+            overlay.insertBefore(node, sibling);
+          } else {
+            overlay.appendChild(node);
+          }
+          charList.splice(pos, 0, item);
+        }
+      }
+
+      prevValue = newValue;
+      syncHeights();
+      togglePlaceholder();
+    }
+
+    let isDrawingMode = false;
+    let drawing = false;
+
+    drawToggle.addEventListener('click', () => {
+      isDrawingMode = !isDrawingMode;
+      if (isDrawingMode) {
+        contentLayer.style.pointerEvents = 'auto';
+        canvas.style.display = 'block';
+        drawToggle.textContent = 'Stop Draw';
+        textarea.style.pointerEvents = 'none';
+        ctx.lineWidth = currentLineWidth;
+        ctx.strokeStyle = currentStrokeStyle;
+        syncHeights();
+        updateCanvasSize();
+        textarea.blur();
+      } else {
+        contentLayer.style.pointerEvents = 'none';
+        canvas.style.display = 'none';
+        drawToggle.textContent = 'Draw';
+        textarea.style.pointerEvents = 'auto';
+        textarea.focus();
+      }
+    });
+
+    penColor.addEventListener('change', (e) => {
+      currentStrokeStyle = e.target.value;
+      if (isDrawingMode) {
+        ctx.strokeStyle = currentStrokeStyle;
+      }
+      updateThicknessPreview();
+    });
+
+    lineThickness.addEventListener('input', (e) => {
+      currentLineWidth = parseInt(e.target.value);
+      if (isDrawingMode) {
+        ctx.lineWidth = currentLineWidth;
+      }
+      updateThicknessPreview();
+    });
+
+    function getCoordinates(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!isDrawingMode) return;
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        e.preventDefault();
+      }
+      drawing = true;
+      const { x, y } = getCoordinates(e);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drawing || !isDrawingMode) return;
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        e.preventDefault();
+      }
+      const { x, y } = getCoordinates(e);
+      let width = currentLineWidth;
+      if (e.pointerType === 'pen' && e.pressure > 0) {
+        width = currentLineWidth * e.pressure;
+      }
+      ctx.lineWidth = width;
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('pointerup', () => {
+      drawing = false;
+    });
+
+    canvas.addEventListener('pointerleave', () => {
+      drawing = false;
+    });
+
+    window.addEventListener('resize', () => {
+      syncHeights();
+      updateCanvasSize();
+    });
+
+    // Gradient popup
+    const colorInputs = {
+      start: document.getElementById('anim-start'),
+      mid: document.getElementById('anim-mid'),
+      end: document.getElementById('anim-end')
+    };
+
+    Object.keys(colorInputs).forEach(type => {
+      colorInputs[type].addEventListener('change', (e) => {
+        const rgb = hexToRgb(e.target.value);
+        if (rgb) {
+          root.style.setProperty(`--anim-${type}-color`, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+          updatePreview();
+        }
+      });
+    });
+
+    preview.addEventListener('click', () => {
+      popup.style.display = 'block';
+      overlayBg.style.display = 'block';
+    });
+
+    document.getElementById('close-popup').addEventListener('click', () => {
+      popup.style.display = 'none';
+      overlayBg.style.display = 'none';
+    });
+
+    overlayBg.addEventListener('click', () => {
+      popup.style.display = 'none';
+      overlayBg.style.display = 'none';
+    });
+
+    // Enhanced createMediaWrapper with dblclick for toggle, mousedown for caret, and shrink handler
+    function createMediaWrapper(src, mediaType = 'image', pendingExpand = false, isExternal = false) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'media-wrapper';
+      wrapper.dataset.mediaType = mediaType;
+      if (pendingExpand) {
+        wrapper.dataset.pendingExpand = 'true';
+      }
+      let mainMedia;
+      if (mediaType === 'image' || mediaType === 'gif') {
+        mainMedia = document.createElement('img');
+        mainMedia.src = src;
+        mainMedia.className = 'image-anim';
+        mainMedia.alt = '';
+        wrapper.appendChild(mainMedia);
+        mainMedia.addEventListener('dragstart', (e) => e.preventDefault());
+        mainMedia.onload = function() {
+          if (!wrapper.dataset.naturalW) {
+            wrapper.dataset.naturalW = this.naturalWidth;
+            wrapper.dataset.naturalH = this.naturalHeight;
+            addListeners();
+            if (wrapper.dataset.pendingExpand === 'true') {
+              toggleSize.call(this);
+              delete wrapper.dataset.pendingExpand;
+            }
+          }
+        };
+        if (mainMedia.complete) {
+          mainMedia.onload();
+        }
+      } else if (mediaType === 'video') {
+        mainMedia = document.createElement('video');
+        mainMedia.src = src;
+        mainMedia.controls = false; // Initially hidden to avoid click interference
+        mainMedia.className = 'image-anim';
+        mainMedia.preload = 'metadata';
+        mainMedia.alt = '';
+        wrapper.appendChild(mainMedia);
+        mainMedia.addEventListener('dragstart', (e) => e.preventDefault());
+        mainMedia.addEventListener('loadedmetadata', function() {
+          if (!wrapper.dataset.naturalW) {
+            wrapper.dataset.naturalW = this.videoWidth;
+            wrapper.dataset.naturalH = this.videoHeight;
+            addListeners();
+            if (wrapper.dataset.pendingExpand === 'true') {
+              toggleSize.call(this);
+              delete wrapper.dataset.pendingExpand;
+            }
+          }
+        });
+      } else if (mediaType === 'audio') {
+        mainMedia = document.createElement('audio');
+        mainMedia.src = src;
+        mainMedia.controls = false;
+        mainMedia.className = 'image-anim';
+        mainMedia.preload = 'metadata';
+        wrapper.appendChild(mainMedia);
+        mainMedia.addEventListener('dragstart', (e) => e.preventDefault());
+        // Set default dimensions for audio
+        wrapper.dataset.naturalW = 400;
+        wrapper.dataset.naturalH = 60;
+        addListeners();
+        if (wrapper.dataset.pendingExpand === 'true') {
+          toggleSize.call(mainMedia);
+          delete wrapper.dataset.pendingExpand;
+        }
+      }
+      wrapper.addEventListener('dragstart', (e) => e.preventDefault());
+      function addListeners() {
+        // CHANGED: dblclick for toggle (expand/shrink)
+        wrapper.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          toggleSize.call(mainMedia, e);
+        });
+        // NEW: mousedown to place caret after media (single-click behavior)
+        wrapper.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (wrapper.dataset.expanded === 'true') return; // Ignore if already expanded
+          const pos = parseInt(wrapper.dataset.pos || '0');
+          textarea.focus();
+          textarea.setSelectionRange(pos + 1, pos + 1);
+          updateCaretPosition();
+        });
+        wrapper.addEventListener('mouseenter', () => {
+          if (wrapper.dataset.expanded !== 'true') {
+            wrapper.classList.add('hover');
+          }
+        });
+        wrapper.addEventListener('mouseleave', () => {
+          if (wrapper.dataset.expanded !== 'true') {
+            wrapper.classList.remove('hover');
+          }
+        });
+      }
+      function toggleSize(e) {
+        e.stopPropagation();
+        if (!wrapper.dataset.naturalW) return;
+        const isExpanded = wrapper.dataset.expanded === 'true';
+        if (isExpanded) {
+          // shrink
+          this.style.position = 'absolute';
+          this.style.left = '0';
+          this.style.top = '0';
+          this.style.width = '100%';
+          this.style.height = '100%';
+          this.style.zIndex = '';
+          this.style.border = '1px solid transparent';
+          if (mediaType === 'video' || mediaType === 'audio') {
+            this.controls = false;
+          }
+          wrapper.dataset.expanded = 'false';
+          wrapper.classList.remove('expanded');
+        } else {
+          // expand
+          const nw = parseFloat(wrapper.dataset.naturalW);
+          const nh = parseFloat(wrapper.dataset.naturalH);
+          this.style.position = 'fixed';
+          this.style.left = `calc(50vw - ${nw / 2}px)`;
+          this.style.top = `calc(50vh - ${nh / 2}px)`;
+          this.style.width = nw + 'px';
+          this.style.height = nh + 'px';
+          this.style.zIndex = '1000';
+          this.style.border = '2px solid #4a90e2';
+          if (mediaType === 'video' || mediaType === 'audio') {
+            this.controls = true;
+          }
+          wrapper.dataset.expanded = 'true';
+          wrapper.classList.add('expanded');
+          // NEW: Add one-time click listener to media for shrink
+          const shrinkHandler = (ev) => {
+            ev.stopPropagation();
+            ev.preventDefault();
+            toggleSize.call(this, ev);
+          };
+          this.addEventListener('click', shrinkHandler, { capture: true, once: true });
+        }
+      }
+      return wrapper;
+    }
+
+    // Prevent dragging text selection in textarea
+    textarea.addEventListener('dragstart', (e) => {
+      e.preventDefault();
+    });
+
+    // Function to insert media from URL, trying to embed or fallback to external
+    async function insertMediaFromUrl(url, pos) {
+      const ext = url.split('.').pop().toLowerCase();
+      let mediaType = null;
+      if (ext === 'gif') {
+        mediaType = 'gif';
+      } else if (['jpg', 'jpeg', 'png', 'bmp', 'webp', 'svg'].includes(ext)) {
+        mediaType = 'image';
+      } else if (['mp4', 'webm', 'mov', 'avi', 'mkv'].includes(ext)) {
+        mediaType = 'video';
+      } else if (['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(ext)) {
+        mediaType = 'audio';
+      }
+      if (!mediaType) {
+        // Not a media URL, insert as text
+        const text_ = textarea.value;
+        textarea.value = text_.slice(0, pos) + url + text_.slice(pos);
+        textarea.selectionStart = textarea.selectionEnd = pos + url.length;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+      }
+
+      let src = url;
+      let isExternal = true;
+      try {
+        const response = await fetch(url, { mode: 'cors' });
+        if (!response.ok) {
+          throw new Error('Failed to fetch');
+        }
+        const blob = await response.blob();
+        const contentType = blob.type;
+        // Optionally revalidate mediaType from contentType
+        if (contentType.startsWith('image/')) {
+          mediaType = contentType === 'image/gif' ? 'gif' : 'image';
+        } else if (contentType.startsWith('video/')) {
+          mediaType = 'video';
+        } else if (contentType.startsWith('audio/')) {
+          mediaType = 'audio';
+        }
+        const reader = new FileReader();
+        await new Promise((resolve, reject) => {
+          reader.onload = (ev) => {
+            src = ev.target.result;
+            isExternal = false;
+            resolve();
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error('Failed to embed media from URL, using external src:', error);
+        // Fallback to external src
+      }
+
+      // Insert the media
+      const text_ = textarea.value;
+      const placeholder = PLACEHOLDER_CHAR;
+      textarea.value = text_.slice(0, pos) + placeholder + text_.slice(pos);
+      const itemData = {
+        char: placeholder,
+        type: 'media',
+        mediaType: mediaType,
+        src: src,
+        isExternal: isExternal,
+        startTime: Date.now(),
+        element: null
+      };
+      charList.splice(pos, 0, itemData);
+      const sibling = overlay.children[pos] || null;
+      const wrapper = createMediaWrapper(src, mediaType, false, isExternal);
+      if (sibling) {
+        overlay.insertBefore(wrapper, sibling);
+      } else {
+        overlay.appendChild(wrapper);
+      }
+      itemData.element = wrapper;
+      // Set pos for caret handling
+      wrapper.dataset.pos = pos;
+      textarea.selectionStart = textarea.selectionEnd = pos + 1;
+      prevValue = textarea.value;
+      updateCaretPosition();
+      syncHeights();
+    }
+
+    // Function to extract potential media URL from text
+    function extractMediaUrl(text) {
+      // Simple regex to match a single URL-like string
+      const urlMatch = text.trim().match(/^(https?:\/\/[^\s]+)$/i);
+      if (urlMatch) {
+        return urlMatch[1];
+      }
+      return null;
+    }
+
+    // Paste handling on document
+    document.addEventListener('paste', async (e) => {
+      e.preventDefault();
+      const clipboardData = e.clipboardData;
+      const text = clipboardData.getData('text/plain');
+      const items = clipboardData.items;
+      let hasMedia = false;
+      for (let item of items) {
+        const type = item.type;
+        let mediaType = null;
+        if (type.startsWith('image/')) {
+          mediaType = type === 'image/gif' ? 'gif' : 'image';
+        } else if (type.startsWith('video/')) {
+          mediaType = 'video';
+        } else if (type.startsWith('audio/')) {
+          mediaType = 'audio';
+        }
+        if (mediaType) {
+          hasMedia = true;
+          textarea.focus();
+          let pos = textarea.selectionStart || textarea.value.length;
+          if (isDrawingMode) {
+            isDrawingMode = false;
+            contentLayer.style.pointerEvents = 'none';
+            canvas.style.display = 'none';
+            drawToggle.textContent = 'Draw';
+            textarea.style.pointerEvents = 'auto';
+            textarea.focus();
+          }
+          const file = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const text_ = textarea.value;
+            const placeholder = PLACEHOLDER_CHAR;
+            textarea.value = text_.slice(0, pos) + placeholder + text_.slice(pos);
+            const itemData = {
+              char: placeholder,
+              type: 'media',
+              mediaType: mediaType,
+              src: ev.target.result,
+              isExternal: false,
+              startTime: Date.now(),
+              element: null
+            };
+            charList.splice(pos, 0, itemData);
+            const sibling = overlay.children[pos] || null;
+            const wrapper = createMediaWrapper(ev.target.result, mediaType, false, false);
+            if (sibling) {
+              overlay.insertBefore(wrapper, sibling);
+            } else {
+              overlay.appendChild(wrapper);
+            }
+            itemData.element = wrapper;
+            // Set pos for caret handling
+            wrapper.dataset.pos = pos;
+            textarea.selectionStart = textarea.selectionEnd = pos + 1;
+            prevValue = textarea.value;
+            updateCaretPosition();
+            syncHeights();
+          };
+          reader.readAsDataURL(file);
+          break;
+        }
+      }
+      if (!hasMedia && text) {
+        // Check for URL first
+        const url = extractMediaUrl(text);
+        if (url) {
+          textarea.focus();
+          let pos = textarea.selectionStart || textarea.value.length;
+          if (isDrawingMode) {
+            isDrawingMode = false;
+            contentLayer.style.pointerEvents = 'none';
+            canvas.style.display = 'none';
+            drawToggle.textContent = 'Draw';
+            textarea.style.pointerEvents = 'auto';
+            textarea.focus();
+          }
+          await insertMediaFromUrl(url, pos);
+        } else {
+          // Fallback to text paste
+          textarea.focus();
+          let pos = textarea.selectionStart || textarea.value.length;
+          if (isDrawingMode) {
+            isDrawingMode = false;
+            contentLayer.style.pointerEvents = 'none';
+            canvas.style.display = 'none';
+            drawToggle.textContent = 'Draw';
+            textarea.style.pointerEvents = 'auto';
+            textarea.focus();
+          }
+          const start = pos;
+          const end = pos;
+          textarea.value = textarea.value.slice(0, start) + text + textarea.value.slice(end);
+          textarea.selectionStart = textarea.selectionEnd = start + text.length;
+          textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }
+    });
+
+    // Drag and drop handling for files only
+    editorContainer.addEventListener('dragover', (e) => {
+      const hasFiles = e.dataTransfer.types.includes('Files');
+      if (hasFiles) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        if (!editorContainer.classList.contains('drag-over')) {
+          editorContainer.classList.add('drag-over');
+        }
+      }
+      // For non-files (e.g., text), do nothing to allow native drop behavior on textarea
+    });
+
+    editorContainer.addEventListener('dragleave', (e) => {
+      editorContainer.classList.remove('drag-over');
+    });
+
+    editorContainer.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        e.preventDefault();
+        editorContainer.classList.remove('drag-over');
+        textarea.focus();
+        let pos = textarea.selectionStart || textarea.value.length;
+        if (isDrawingMode) {
+          isDrawingMode = false;
+          contentLayer.style.pointerEvents = 'none';
+          canvas.style.display = 'none';
+          drawToggle.textContent = 'Draw';
+          textarea.style.pointerEvents = 'auto';
+          textarea.focus();
+        }
+        // Handle multiple files sequentially
+        Array.from(files).forEach((file, index) => {
+          const type = file.type;
+          let mediaType = null;
+          if (type.startsWith('image/')) {
+            mediaType = type === 'image/gif' ? 'gif' : 'image';
+          } else if (type.startsWith('video/')) {
+            mediaType = 'video';
+          } else if (type.startsWith('audio/')) {
+            mediaType = 'audio';
+          }
+          if (mediaType) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              const text_ = textarea.value;
+              const placeholder = PLACEHOLDER_CHAR;
+              const newPos = pos + index; // Adjust for previous insertions
+              textarea.value = text_.slice(0, newPos) + placeholder + text_.slice(newPos);
+              const itemData = {
+                char: placeholder,
+                type: 'media',
+                mediaType: mediaType,
+                src: ev.target.result,
+                isExternal: false,
+                startTime: Date.now(),
+                element: null
+              };
+              charList.splice(newPos, 0, itemData);
+              const sibling = overlay.children[newPos] || null;
+              const wrapper = createMediaWrapper(ev.target.result, mediaType, false, false);
+              if (sibling) {
+                overlay.insertBefore(wrapper, sibling);
+              } else {
+                overlay.appendChild(wrapper);
+              }
+              itemData.element = wrapper;
+              // Set pos for caret handling
+              wrapper.dataset.pos = newPos;
+              textarea.selectionStart = textarea.selectionEnd = newPos + 1;
+              prevValue = textarea.value;
+              updateCaretPosition();
+              syncHeights();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      } else {
+        // For non-files, do nothing to allow native drop (e.g., text drop into textarea)
+        editorContainer.classList.remove('drag-over');
+      }
+    });
+
+    textarea.addEventListener('input', (e) => {
+      updateText();
+      insertCaret(textarea.selectionEnd);
+    });
+
+    // Handle Enter key to insert newline and prevent default behavior
+    textarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+
+        // Insert newline character
+        textarea.value = text.slice(0, start) + '\n' + text.slice(end);
+
+        // Move cursor after the newline
+        textarea.selectionStart = textarea.selectionEnd = start + 1;
+
+        // Trigger input to rebuild overlay
+        const inputEvent = new Event('input', { bubbles: true });
+        textarea.dispatchEvent(inputEvent);
+      }
+    });
+
+    // Update caret on selection change to update caret position without rebuilding
+    document.addEventListener('selectionchange', () => {
+      if (document.activeElement === textarea) {
+        updateCaretPosition();
+      }
+    });
+
+    // Initial setup
+    prevValue = textarea.value;
+    togglePlaceholder();
+    syncHeights();
+    updateCanvasSize();
+    contentLayer.style.pointerEvents = 'none'; // Ensure initial state allows interactions
+
+    textarea.addEventListener('focus', () => {
+      togglePlaceholder();
+      updateCaretPosition();
+    });
+
+    textarea.addEventListener('blur', () => {
+      togglePlaceholder();
+    });
+
+    // Save and Load functionality
+    function loadContent(savedContent) {
+      overlay.innerHTML = '';
+      charList = [];
+      textarea.value = '';
+      const now = Date.now();
+      for (let savedItem of savedContent) {
+        let item, node;
+        const age = savedItem.age;
+        const startTime = now - age;
+        if (savedItem.type === 'text') {
+          const char = savedItem.char;
+          textarea.value += char;
+          node = createCharSpan(char, startTime);
+          item = { char, startTime, element: node };
+          overlay.appendChild(node);
+        } else if (savedItem.type === 'newline') {
+          const char = '\n';
+          textarea.value += char;
+          node = document.createElement('br');
+          item = { char, startTime: now, element: node };
+          overlay.appendChild(node);
+        } else if (savedItem.type === 'media') {
+          const char = PLACEHOLDER_CHAR;
+          textarea.value += char;
+          const mediaType = savedItem.mediaType || 'image';
+          const pendingExpand = savedItem.expanded || false;
+          const isExternal = savedItem.isExternal || false;
+          const wrapper = createMediaWrapper(savedItem.src, mediaType, pendingExpand, isExternal);
+          overlay.appendChild(wrapper);
+          // Set pos for caret handling
+          wrapper.dataset.pos = charList.length;
+          item = { char, type: 'media', mediaType, src: savedItem.src, isExternal, startTime, element: wrapper };
+        }
+        if (item) {
+          charList.push(item);
+        }
+      }
+      prevValue = textarea.value;
+      updateCaretPosition();
+      togglePlaceholder();
+      syncHeights();
+    }
+
+    function loadCanvas(dataURL) {
+      const img = new Image();
+      img.src = dataURL;
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+      };
+    }
+
+    function loadFromSaved(saved) {
+      // Load controls
+      fontFamilySelect.value = saved.controls.fontFamily;
+      root.style.setProperty('--font-family', saved.controls.fontFamily);
+      fontWeightSelect.value = saved.controls.fontWeight;
+      root.style.setProperty('--font-weight', saved.controls.fontWeight);
+      fontSizeRange.value = saved.controls.fontSize;
+      root.style.setProperty('--font-size', saved.controls.fontSize + 'px');
+      animIntervalRange.value = saved.controls.animInterval;
+      ANIMATION_INTERVAL = parseInt(saved.controls.animInterval);
+
+      // Load gradient colors
+      colorInputs.start.value = saved.controls.animStartHex;
+      colorInputs.start.dispatchEvent(new Event('change'));
+      colorInputs.mid.value = saved.controls.animMidHex;
+      colorInputs.mid.dispatchEvent(new Event('change'));
+      colorInputs.end.value = saved.controls.animEndHex;
+      colorInputs.end.dispatchEvent(new Event('change'));
+
+      penColor.value = saved.controls.penColor;
+      penColor.dispatchEvent(new Event('change'));
+      lineThickness.value = saved.controls.lineThickness;
+      lineThickness.dispatchEvent(new Event('input'));
+
+      // Load canvas
+      if (saved.canvas) {
+        loadCanvas(saved.canvas);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // Load content
+      loadContent(saved.content);
+
+      // Reset drawing mode
+      isDrawingMode = false;
+      contentLayer.style.pointerEvents = 'none';
+      canvas.style.display = 'none';
+      drawToggle.textContent = 'Draw';
+      textarea.style.pointerEvents = 'auto';
+
+      updateCanvasSize();
+
+      textarea.focus();
+    }
+
+    saveBtn.addEventListener('click', () => {
+      const now = Date.now();
+      const savedContent = [];
+      for (let item of charList) {
+        const age = now - item.startTime;
+        if (item.char === '\n') {
+          savedContent.push({ type: 'newline', age });
+        } else if (item.char === PLACEHOLDER_CHAR && item.type === 'media') {
+          savedContent.push({ type: 'media', mediaType: item.mediaType, src: item.src, isExternal: item.isExternal, age, expanded: item.element.dataset.expanded === 'true' });
+        } else {
+          savedContent.push({ type: 'text', char: item.char, age });
+        }
+      }
+      const canvasData = canvas.toDataURL('image/png');
+      const controls = {
+        fontFamily: fontFamilySelect.value,
+        fontWeight: fontWeightSelect.value,
+        fontSize: parseInt(fontSizeRange.value),
+        animInterval: parseInt(animIntervalRange.value),
+        animStartHex: colorInputs.start.value,
+        animMidHex: colorInputs.mid.value,
+        animEndHex: colorInputs.end.value,
+        penColor: penColor.value,
+        lineThickness: parseInt(lineThickness.value)
+      };
+      const data = { content: savedContent, canvas: canvasData, controls };
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'editor-save.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    loadBtn.addEventListener('click', () => {
+      loadFile.click();
+    });
+
+    loadFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const saved = JSON.parse(ev.target.result);
+          loadFromSaved(saved);
+        } catch (err) {
+          alert('Invalid save file');
+        }
+      };
+      reader.readAsText(file);
+      loadFile.value = ''; // Reset for next load
+    });
+  </script>
+</body>
+</html>
